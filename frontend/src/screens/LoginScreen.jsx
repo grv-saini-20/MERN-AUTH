@@ -27,13 +27,12 @@ const LoginScreen = () => {
         <Button type='submit' variant='primary'>
           Sign In
         </Button>
+        <Row className="py-3">
+          <Col>
+            New Customer? <Link to='/register'>Register</Link>
+          </Col>
+        </Row>
       </Form>
-    </FormContainer>
-  )
-}
-
-export default LoginScreen
-      <div>LoginScreen</div>
     </FormContainer>
   )
 }
