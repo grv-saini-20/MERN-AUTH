@@ -1,16 +1,37 @@
-import React from 'react'
-import {useState} from "react"
-import {Form, Button, Row, Col} from 'react-bootstrap'
-import FormContainer from '../components/FormContainer'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import {useState, useEffect} from "react";
+import {Form, Button, Row, Col} from 'react-bootstrap';
+import FormContainer from '../components/FormContainer';
+import { Link, useNavigate } from 'react-router-dom';
+import {useDispatch, useSelector} from "react-redux";
+import { useLoginMutation } from '../slices/usersApiSlice';
+import { setCredentials } from '../slices/authSlice';
+import {toast} from "react-toastify";
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [login, { isLoading }] = useLoginMutation();
+    const { userInfo } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        if (userInfo) {
+            navigate('/');
+        }
+    }, [userInfo, navigate]);
 
     const submitHandler = async(e) => {
-        e.preventDefault()
-        console.log('submit')
+        e.preventDefault();
+        try {
+            const userData = await login({ email, password }).unwrap();
+            dispatch(setCredentials({ ...userData }));
+            navigate('/');
+        } catch (error) {
+            toast.error(error?.data?.message || error.error);
+        }
     }
   return (
     <FormContainer>
