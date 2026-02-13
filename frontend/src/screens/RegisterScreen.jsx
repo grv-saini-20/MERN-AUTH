@@ -1,8 +1,14 @@
-import React from 'react'
-import {useState} from "react"
-import {Form, Button, Row, Col} from 'react-bootstrap'
-import FormContainer from '../components/FormContainer'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import {Form, Button, Row, Col} from 'react-bootstrap';
+import FormContainer from '../components/FormContainer';
+import { Link } from 'react-router-dom';
+import {useState, useEffect} from "react";
+import { useRegisterMutation } from '../slices/usersApiSlice';
+import { toast } from 'react-toastify';
+import { setCredentials } from '../slices/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import Loader from '../components/Loader';
 
 const RegisterScreen = () => {
     const [name, setName] = useState('')
@@ -10,9 +16,31 @@ const RegisterScreen = () => {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
 
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const { userInfo } = useSelector((state) => state.auth);
+    const [register, { isLoading }] = useRegisterMutation();
+
+    useEffect(() => {
+        if (userInfo) {
+            navigate('/');
+        }
+    }, [userInfo, navigate]);
+
     const submitHandler = async(e) => {
         e.preventDefault()
-        console.log('submit')
+        if(password !== confirmPassword) {
+            toast.error('Passwords do not match');
+        } else {
+            try {
+                const userData = await register({ name, email, password }).unwrap();
+                dispatch(setCredentials({ ...userData }));
+                navigate('/');
+            } catch (error) {
+                toast.error(error?.data?.message || error.message);
+            }
+        }
     }
   return (
     <FormContainer>
@@ -36,8 +64,9 @@ const RegisterScreen = () => {
           <Form.Label>Confirm Password</Form.Label>
           <Form.Control type='password' placeholder='Confirm password' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
         </Form.Group>
-
-        <Button type='submit' variant='primary'>
+        
+        {isLoading && <Loader />}
+        <Button type='submit' variant='primary' disabled={isLoading}>
           Register
         </Button>
         <Row className="py-3">
