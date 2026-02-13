@@ -9,6 +9,8 @@ import App from './App.jsx'
 import HomeScreen from './screens/HomeScreen.jsx';
 import LoginScreen from './screens/LoginScreen.jsx';
 import RegisterScreen from './screens/RegisterScreen.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
+import ProfileScreen from './screens/ProfileScreen.jsx';
 
 const router =createBrowserRouter(
   createRoutesFromElements(
@@ -16,6 +18,9 @@ const router =createBrowserRouter(
       <Route index element={<HomeScreen />} />
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/register' element={<RegisterScreen />} />
+      <Route path='/profile' element={<PrivateRoute />}>
+        <Route index element={<ProfileScreen />} />
+      </Route>
     </Route>
   )
 )
